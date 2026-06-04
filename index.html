@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soal Matematika</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: sans-serif; background: #f0fdf4; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .card { background: #fff; border-radius: 16px; padding: 2rem; max-width: 600px; width: 100%; box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
+
+  /* INTRO */
+  .intro-wrap { text-align: center; padding: 2rem 0; }
+  .intro-icon { font-size: 56px; margin-bottom: 1rem; }
+  .intro-title { font-size: 28px; font-weight: 700; color: #15803d; margin-bottom: 8px; }
+  .intro-sub { font-size: 15px; color: #666; margin-bottom: 2rem; line-height: 1.6; }
+  .start-btn { background: #16a34a; color: #fff; border: none; border-radius: 10px; padding: 14px 36px; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background 0.15s; }
+  .start-btn:hover { background: #15803d; }
+
+  /* QUIZ */
+  .progress-bar-bg { background: #dcfce7; border-radius: 99px; height: 7px; margin-bottom: 1.5rem; }
+  .progress-bar-fill { background: #16a34a; border-radius: 99px; height: 7px; transition: width 0.4s ease; }
+  .question-counter { font-size: 13px; color: #888; margin-bottom: 8px; }
+  .question-text { font-size: 17px; font-weight: 500; color: #111; margin-bottom: 1.5rem; line-height: 1.6; }
+  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+  .option-btn { background: #fff; border: 1.5px solid #d1d5db; border-radius: 10px; padding: 13px 16px; font-size: 14px; color: #111; cursor: pointer; text-align: left; transition: all 0.15s; line-height: 1.4; }
+  .option-btn:hover:not(:disabled) { background: #f0fdf4; border-color: #16a34a; }
+  .option-btn.correct { background: #dcfce7; border-color: #16a34a; color: #14532d; font-weight: 600; }
+  .option-btn.wrong { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+  .option-btn.reveal-correct { background: #dcfce7; border-color: #16a34a; color: #14532d; font-weight: 600; }
+  .option-btn:disabled { cursor: default; }
+  .feedback-box { border-radius: 8px; padding: 12px 16px; font-size: 14px; margin-bottom: 1.25rem; display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
+  .feedback-box.correct { background: #dcfce7; color: #14532d; }
+  .feedback-box.wrong { background: #fee2e2; color: #7f1d1d; }
+  .feedback-box i { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .nav-row { display: flex; justify-content: flex-end; }
+  .next-btn { background: #16a34a; color: #fff; border: none; border-radius: 8px; padding: 10px 22px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s; }
+  .next-btn:hover { background: #15803d; }
+
+  /* RESULT */
+  .result-wrap { text-align: center; padding: 1rem 0; }
+  .score-circle { width: 110px; height: 110px; border-radius: 50%; background: #dcfce7; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 3px solid #16a34a; }
+  .score-num { font-size: 30px; font-weight: 700; color: #15803d; line-height: 1; }
+  .score-label { font-size: 12px; color: #16a34a; margin-top: 2px; }
+  .result-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #111; }
+  .result-sub { font-size: 14px; color: #888; margin-bottom: 1.5rem; }
+  .result-answers { text-align: left; margin-bottom: 1.5rem; }
+  .ans-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+  .ans-item:last-child { border-bottom: none; }
+  .ans-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .ans-q { color: #888; margin-bottom: 2px; }
+  .restart-btn { background: #16a34a; color: #fff; border: none; border-radius: 8px; padding: 11px 26px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
+  .restart-btn:hover { background: #15803d; }
+
+  @media (max-width: 480px) { .options-grid { grid-template-columns: 1fr; } .card { padding: 1.25rem; } }
+</style>
+</head>
+<body>
+<div class="card">
+  <div id="root"></div>
+</div>
+
+<script>
+const questions = [
+  { q: "1. 1.250 + 3.475 = ...", options: ["A. 4.625", "B. 4.725", "C. 4.825", "D. 5.725"], answer: 1, explanation: "1.250 + 3.475 = 4.725" },
+  { q: "2. 8.000 - 2.650 = ...", options: ["A. 5.350", "B. 5.450", "C. 6.350", "D. 5.250"], answer: 0, explanation: "8.000 - 2.650 = 5.350" },
+  { q: "3. 125 × 16 = ...", options: ["A. 1.800", "B. 2.000", "C. 1.900", "D. 2.100"], answer: 1, explanation: "125 × 16 = 2.000" },
+  { q: "4. 4.200 ÷ 7 = ...", options: ["A. 500", "B. 600", "C. 700", "D. 60"], answer: 1, explanation: "4.200 ÷ 7 = 600" },
+  { q: "5. KPK dari 6 dan 8 adalah ...", options: ["A. 12", "B. 24", "C. 48", "D. 16"], answer: 1, explanation: "Kelipatan 6: 6,12,18,24 — Kelipatan 8: 8,16,24. KPK = 24" },
+  { q: "6. FPB dari 24 dan 36 adalah ...", options: ["A. 6", "B. 8", "C. 12", "D. 18"], answer: 2, explanation: "Faktor 24: 1,2,3,4,6,8,12,24 — Faktor 36: 1,2,3,4,6,9,12,18,36. FPB = 12" },
+  { q: "7. 3/4 + 1/2 = ...", options: ["A. 4/6", "B. 1 1/4", "C. 1/2", "D. 3/8"], answer: 1, explanation: "3/4 + 2/4 = 5/4 = 1 1/4" },
+  { q: "8. 2,5 + 0,75 = ...", options: ["A. 3,25", "B. 2,75", "C. 3,50", "D. 2,25"], answer: 0, explanation: "2,5 + 0,75 = 3,25" },
+  { q: "9. Keliling persegi dengan sisi 9 cm adalah ...", options: ["A. 18 cm", "B. 27 cm", "C. 36 cm", "D. 81 cm"], answer: 2, explanation: "Keliling persegi = 4 × sisi = 4 × 9 = 36 cm" },
+  { q: "10. Luas persegi panjang panjang 12 cm dan lebar 5 cm adalah ...", options: ["A. 17 cm²", "B. 34 cm²", "C. 60 cm²", "D. 50 cm²"], answer: 2, explanation: "Luas = panjang × lebar = 12 × 5 = 60 cm²" }
+];
+
+let current = 0, selected = null, score = 0, userAnswers = [];
+const root = document.getElementById('root');
+
+function renderIntro() {
+  root.innerHTML = `
+    <div class="intro-wrap">
+      <div class="intro-icon">📐</div>
+      <div class="intro-title">Soal Matematika</div>
+      <div class="intro-sub">Kerjakan 10 soal matematika pilihan ganda.<br>Pilih jawaban yang paling tepat!</div>
+      <button class="start-btn" onclick="startQuiz()">
+        <i class="ti ti-pencil"></i> Kerjakan Soal
+      </button>
+    </div>`;
+}
+
+function startQuiz() { current = 0; selected = null; score = 0; userAnswers = []; render(); }
+
+function render() {
+  if (current >= questions.length) { renderResult(); return; }
+  const q = questions[current];
+  const pct = (current / questions.length) * 100;
+  root.innerHTML = `
+    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+    <div class="question-counter">Soal ${current + 1} dari ${questions.length}</div>
+    <div class="question-text">${q.q}</div>
+    <div class="options-grid" id="opts">
+      ${q.options.map((opt, i) => `<button class="option-btn" id="opt-${i}" onclick="choose(${i})">${opt}</button>`).join('')}
+    </div>
+    <div id="feedback"></div>
+    <div class="nav-row" id="nav"></div>`;
+}
+
+function choose(idx) {
+  if (selected !== null) return;
+  selected = idx;
+  const q = questions[current];
+  const isCorrect = idx === q.answer;
+  if (isCorrect) score++;
+  userAnswers.push({ q: q.q, chosen: q.options[idx], correct: q.options[q.answer], isCorrect });
+  for (let i = 0; i < q.options.length; i++) {
+    const btn = document.getElementById('opt-' + i);
+    btn.disabled = true;
+    if (i === q.answer) btn.classList.add(idx === i ? 'correct' : 'reveal-correct');
+    else if (i === idx && !isCorrect) btn.classList.add('wrong');
+  }
+  document.getElementById('feedback').innerHTML = `
+    <div class="feedback-box ${isCorrect ? 'correct' : 'wrong'}">
+      <i class="ti ${isCorrect ? 'ti-circle-check' : 'ti-circle-x'}"></i>
+      <div><strong>${isCorrect ? 'Benar!' : 'Kurang tepat.'}</strong> ${q.explanation}</div>
+    </div>`;
+  const isLast = current === questions.length - 1;
+  document.getElementById('nav').innerHTML = `
+    <button class="next-btn" onclick="next()">
+      ${isLast ? 'Lihat Hasil' : 'Soal Berikutnya'} <i class="ti ti-arrow-right"></i>
+    </button>`;
+}
+
+function next() { current++; selected = null; render(); }
+
+function renderResult() {
+  const pct = Math.round((score / questions.length) * 100);
+  const verdict = pct === 100 ? "Sempurna! 🎉" : pct >= 80 ? "Bagus Sekali! 👏" : pct >= 60 ? "Cukup Bagus! 👍" : "Tetap Semangat! 💪";
+  root.innerHTML = `
+    <div class="result-wrap">
+      <div class="score-circle">
+        <span class="score-num">${score}/${questions.length}</span>
+        <span class="score-label">${pct}%</span>
+      </div>
+      <div class="result-title">${verdict}</div>
+      <div class="result-sub">Kamu menjawab ${score} dari ${questions.length} soal dengan benar.</div>
+      <div class="result-answers">
+        ${userAnswers.map(a => `<div class="ans-item">
+          <i class="ans-icon ti ${a.isCorrect ? 'ti-circle-check' : 'ti-circle-x'}" style="color:${a.isCorrect ? '#16a34a' : '#dc2626'}"></i>
+          <div>
+            <div class="ans-q">${a.q}</div>
+            <div>${a.isCorrect ? `<span style="color:#16a34a">${a.correct}</span>` : `<span style="color:#dc2626;text-decoration:line-through">${a.chosen}</span> → <span style="color:#16a34a">${a.correct}</span>`}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+      <button class="restart-btn" onclick="renderIntro()"><i class="ti ti-refresh"></i> Ulangi Kuis</button>
+    </div>`;
+}
+
+renderIntro();
+</script>
+</body>
+</html>
