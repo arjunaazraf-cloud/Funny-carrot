@@ -3,42 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Soal Matematika</title>
+<title>Soal Matematika Kelas 6</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: sans-serif; background: #f0fdf4; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-  .card { background: #fff; border-radius: 16px; padding: 2rem; max-width: 600px; width: 100%; box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
-
-  /* INTRO */
+  .card { background: #fff; border-radius: 16px; padding: 2rem; max-width: 620px; width: 100%; box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
   .intro-wrap { text-align: center; padding: 2rem 0; }
   .intro-icon { font-size: 56px; margin-bottom: 1rem; }
   .intro-title { font-size: 28px; font-weight: 700; color: #15803d; margin-bottom: 8px; }
-  .intro-sub { font-size: 15px; color: #666; margin-bottom: 2rem; line-height: 1.6; }
+  .intro-sub { font-size: 15px; color: #666; margin-bottom: 2rem; line-height: 1.8; }
   .start-btn { background: #16a34a; color: #fff; border: none; border-radius: 10px; padding: 14px 36px; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background 0.15s; }
   .start-btn:hover { background: #15803d; }
-
-  /* QUIZ */
+  .timer-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .timer-box { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 700; padding: 6px 14px; border-radius: 99px; transition: background 0.3s, color 0.3s; }
+  .timer-box.reading { background: #fef9c3; color: #a16207; }
+  .timer-box.running { background: #dcfce7; color: #15803d; }
+  .timer-box.warning { background: #fed7aa; color: #c2410c; }
+  .timer-box.danger { background: #fee2e2; color: #dc2626; animation: pulse 0.5s infinite alternate; }
+  @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+  .phase-label { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 99px; }
+  .phase-label.reading { background: #fef9c3; color: #a16207; }
+  .phase-label.running { background: #dcfce7; color: #15803d; }
   .progress-bar-bg { background: #dcfce7; border-radius: 99px; height: 7px; margin-bottom: 1.5rem; }
   .progress-bar-fill { background: #16a34a; border-radius: 99px; height: 7px; transition: width 0.4s ease; }
-  .question-counter { font-size: 13px; color: #888; margin-bottom: 8px; }
-  .question-text { font-size: 17px; font-weight: 500; color: #111; margin-bottom: 1.5rem; line-height: 1.6; }
+  .question-counter { font-size: 13px; color: #888; }
+  .question-text { font-size: 16px; font-weight: 500; color: #111; margin-bottom: 1.5rem; line-height: 1.6; }
   .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
   .option-btn { background: #fff; border: 1.5px solid #d1d5db; border-radius: 10px; padding: 13px 16px; font-size: 14px; color: #111; cursor: pointer; text-align: left; transition: all 0.15s; line-height: 1.4; }
   .option-btn:hover:not(:disabled) { background: #f0fdf4; border-color: #16a34a; }
-  .option-btn.correct { background: #dcfce7; border-color: #16a34a; color: #14532d; font-weight: 600; }
-  .option-btn.wrong { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
-  .option-btn.reveal-correct { background: #dcfce7; border-color: #16a34a; color: #14532d; font-weight: 600; }
+  .option-btn.locked { opacity: 0.5; cursor: not-allowed; }
+  .option-btn.correct { background: #dcfce7; border-color: #16a34a; color: #14532d; font-weight: 600; opacity: 1; }
+  .option-btn.wrong { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; opacity: 1; }
+  .option-btn.reveal-correct { background: #dcfce7; border-color: #16a34a; color: #14532d; font-weight: 600; opacity: 1; }
   .option-btn:disabled { cursor: default; }
   .feedback-box { border-radius: 8px; padding: 12px 16px; font-size: 14px; margin-bottom: 1.25rem; display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
   .feedback-box.correct { background: #dcfce7; color: #14532d; }
   .feedback-box.wrong { background: #fee2e2; color: #7f1d1d; }
+  .feedback-box.timeout { background: #fef9c3; color: #a16207; }
   .feedback-box i { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
   .nav-row { display: flex; justify-content: flex-end; }
   .next-btn { background: #16a34a; color: #fff; border: none; border-radius: 8px; padding: 10px 22px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s; }
   .next-btn:hover { background: #15803d; }
-
-  /* RESULT */
   .result-wrap { text-align: center; padding: 1rem 0; }
   .score-circle { width: 110px; height: 110px; border-radius: 50%; background: #dcfce7; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 3px solid #16a34a; }
   .score-num { font-size: 30px; font-weight: 700; color: #15803d; line-height: 1; }
@@ -49,70 +55,253 @@
   .ans-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
   .ans-item:last-child { border-bottom: none; }
   .ans-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-  .ans-q { color: #888; margin-bottom: 2px; }
+  .ans-q { color: #888; margin-bottom: 2px; font-size: 13px; }
   .restart-btn { background: #16a34a; color: #fff; border: none; border-radius: 8px; padding: 11px 26px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
   .restart-btn:hover { background: #15803d; }
-
   @media (max-width: 480px) { .options-grid { grid-template-columns: 1fr; } .card { padding: 1.25rem; } }
 </style>
 </head>
 <body>
-<div class="card">
-  <div id="root"></div>
-</div>
-
+<div class="card"><div id="root"></div></div>
 <script>
+const MUSIC_URL = 'https://arjunaazraf-cloud.github.io/Funny-carrot/musik.mp3';
+const READ_TIME = 5;
+const ANSWER_TIME = 30;
+
 const questions = [
-  { q: "1. 1.250 + 3.475 = ...", options: ["A. 4.625", "B. 4.725", "C. 4.825", "D. 5.725"], answer: 1, explanation: "1.250 + 3.475 = 4.725" },
-  { q: "2. 8.000 - 2.650 = ...", options: ["A. 5.350", "B. 5.450", "C. 6.350", "D. 5.250"], answer: 0, explanation: "8.000 - 2.650 = 5.350" },
-  { q: "3. 125 × 16 = ...", options: ["A. 1.800", "B. 2.000", "C. 1.900", "D. 2.100"], answer: 1, explanation: "125 × 16 = 2.000" },
-  { q: "4. 4.200 ÷ 7 = ...", options: ["A. 500", "B. 600", "C. 700", "D. 60"], answer: 1, explanation: "4.200 ÷ 7 = 600" },
-  { q: "5. KPK dari 6 dan 8 adalah ...", options: ["A. 12", "B. 24", "C. 48", "D. 16"], answer: 1, explanation: "Kelipatan 6: 6,12,18,24 — Kelipatan 8: 8,16,24. KPK = 24" },
-  { q: "6. FPB dari 24 dan 36 adalah ...", options: ["A. 6", "B. 8", "C. 12", "D. 18"], answer: 2, explanation: "Faktor 24: 1,2,3,4,6,8,12,24 — Faktor 36: 1,2,3,4,6,9,12,18,36. FPB = 12" },
-  { q: "7. 3/4 + 1/2 = ...", options: ["A. 4/6", "B. 1 1/4", "C. 1/2", "D. 3/8"], answer: 1, explanation: "3/4 + 2/4 = 5/4 = 1 1/4" },
-  { q: "8. 2,5 + 0,75 = ...", options: ["A. 3,25", "B. 2,75", "C. 3,50", "D. 2,25"], answer: 0, explanation: "2,5 + 0,75 = 3,25" },
-  { q: "9. Keliling persegi dengan sisi 9 cm adalah ...", options: ["A. 18 cm", "B. 27 cm", "C. 36 cm", "D. 81 cm"], answer: 2, explanation: "Keliling persegi = 4 × sisi = 4 × 9 = 36 cm" },
-  { q: "10. Luas persegi panjang panjang 12 cm dan lebar 5 cm adalah ...", options: ["A. 17 cm²", "B. 34 cm²", "C. 60 cm²", "D. 50 cm²"], answer: 2, explanation: "Luas = panjang × lebar = 12 × 5 = 60 cm²" }
+  { q: "1. Hasil dari 2.456 + 3.789 adalah...", options: ["A. 6.145", "B. 6.245", "C. 6.345", "D. 6.445"], answer: 1, explanation: "2.456 + 3.789 = 6.245" },
+  { q: "2. 8.205 - 4.678 = ...", options: ["A. 3.527", "B. 3.537", "C. 3.627", "D. 3.637"], answer: 0, explanation: "8.205 - 4.678 = 3.527" },
+  { q: "3. 45 × 26 = ...", options: ["A. 1.160", "B. 1.170", "C. 1.270", "D. 1.280"], answer: 1, explanation: "45 × 26 = 1.170" },
+  { q: "4. 2.856 : 12 = ...", options: ["A. 228", "B. 238", "C. 248", "D. 258"], answer: 1, explanation: "2.856 ÷ 12 = 238" },
+  { q: "5. FPB dari 36 dan 48 adalah...", options: ["A. 6", "B. 8", "C. 12", "D. 24"], answer: 2, explanation: "Faktor terbesar yang sama dari 36 dan 48 = 12" },
+  { q: "6. KPK dari 15 dan 20 adalah...", options: ["A. 30", "B. 45", "C. 60", "D. 80"], answer: 2, explanation: "Kelipatan persekutuan terkecil = 60" },
+  { q: "7. Hasil dari 3/4 + 2/5 = ...", options: ["A. 5/9", "B. 1 3/20", "C. 1 1/20", "D. 6/20"], answer: 1, explanation: "15/20 + 8/20 = 23/20 = 1 3/20" },
+  { q: "8. 2 1/2 - 1 3/4 = ...", options: ["A. 1/4", "B. 1/2", "C. 3/4", "D. 1 1/4"], answer: 2, explanation: "10/4 - 7/4 = 3/4" },
+  { q: "9. 3/8 × 4/9 = ...", options: ["A. 1/6", "B. 7/17", "C. 12/72", "D. 1/3"], answer: 0, explanation: "12/72 = 1/6" },
+  { q: "10. 4/5 : 2/3 = ...", options: ["A. 8/15", "B. 6/10", "C. 1 1/5", "D. 2 1/2"], answer: 2, explanation: "4/5 × 3/2 = 12/10 = 1 1/5" },
+  { q: "11. Bentuk desimal dari 3/8 adalah...", options: ["A. 0,325", "B. 0,375", "C. 0,425", "D. 0,475"], answer: 1, explanation: "3 ÷ 8 = 0,375" },
+  { q: "12. 0,75 + 1,25 = ...", options: ["A. 1,5", "B. 1,75", "C. 2,0", "D. 2,25"], answer: 2, explanation: "0,75 + 1,25 = 2,0" },
+  { q: "13. 4,5 × 1,2 = ...", options: ["A. 5,2", "B. 5,4", "C. 5,6", "D. 5,8"], answer: 1, explanation: "4,5 × 1,2 = 5,4" },
+  { q: "14. 20% dari Rp150.000 adalah...", options: ["A. Rp15.000", "B. Rp20.000", "C. Rp25.000", "D. Rp30.000"], answer: 3, explanation: "20% × 150.000 = Rp30.000" },
+  { q: "15. Urutan pecahan terkecil: 0,6 ; 3/5 ; 65% ; 2/3 adalah...", options: ["A. 3/5 ; 0,6 ; 65% ; 2/3", "B. 0,6 ; 3/5 ; 2/3 ; 65%", "C. 3/5 ; 0,6 ; 2/3 ; 65%", "D. 65% ; 2/3 ; 0,6 ; 3/5"], answer: 0, explanation: "3/5=0,6 < 65%=0,65 < 2/3≈0,667" },
+  { q: "16. -15 + 28 - (-7) = ...", options: ["A. 6", "B. 10", "C. 20", "D. 50"], answer: 2, explanation: "-15 + 28 + 7 = 20" },
+  { q: "17. Suhu puncak gunung -4°C, naik 9°C. Suhu sekarang...", options: ["A. -13°C", "B. -5°C", "C. 5°C", "D. 13°C"], answer: 2, explanation: "-4 + 9 = 5°C" },
+  { q: "18. Debit 30 liter/menit. Volume air dalam 5 menit...", options: ["A. 60 liter", "B. 120 liter", "C. 150 liter", "D. 180 liter"], answer: 2, explanation: "30 × 5 = 150 liter" },
+  { q: "19. Jarak 120 km ditempuh 3 jam. Kecepatannya...", options: ["A. 30 km/jam", "B. 40 km/jam", "C. 50 km/jam", "D. 60 km/jam"], answer: 1, explanation: "120 ÷ 3 = 40 km/jam" },
+  { q: "20. Kubus rusuk 8 cm. Volumenya...", options: ["A. 64 cm³", "B. 256 cm³", "C. 512 cm³", "D. 640 cm³"], answer: 2, explanation: "8³ = 512 cm³" },
+  { q: "21. Luas lingkaran jari-jari 7 cm (π=22/7)...", options: ["A. 44 cm²", "B. 154 cm²", "C. 308 cm²", "D. 616 cm²"], answer: 1, explanation: "22/7 × 49 = 154 cm²" },
+  { q: "22. Keliling persegi panjang p=15 cm, l=9 cm...", options: ["A. 24 cm", "B. 48 cm", "C. 135 cm", "D. 270 cm"], answer: 1, explanation: "2 × (15+9) = 48 cm" },
+  { q: "23. Sudut A=60°, B=70°. Sudut C = ...", options: ["A. 40°", "B. 50°", "C. 60°", "D. 70°"], answer: 1, explanation: "180° - 60° - 70° = 50°" },
+  { q: "24. Modus dari: 7,8,6,9,7,8,7,10 adalah...", options: ["A. 6", "B. 7", "C. 8", "D. 9"], answer: 1, explanation: "Angka 7 muncul 3 kali = modus" },
+  { q: "25. Rata-rata dari 6, 8, 9, 7, 10 adalah...", options: ["A. 7", "B. 8", "C. 9", "D. 10"], answer: 1, explanation: "40 ÷ 5 = 8" },
+  { q: "26. 2³ + 4² = ...", options: ["A. 14", "B. 22", "C. 24", "D. 32"], answer: 2, explanation: "8 + 16 = 24" },
+  { q: "27. √144 + √25 = ...", options: ["A. 13", "B. 17", "C. 37", "D. 169"], answer: 1, explanation: "12 + 5 = 17" },
+  { q: "28. Skala 1:500.000. Jarak peta 4 cm. Jarak sebenarnya...", options: ["A. 2 km", "B. 20 km", "C. 200 km", "D. 2000 km"], answer: 1, explanation: "4 × 500.000 = 2.000.000 cm = 20 km" },
+  { q: "29. Beli 2,5 kg gula, digunakan 1 3/4 kg. Sisanya...", options: ["A. 0,25 kg", "B. 0,5 kg", "C. 0,75 kg", "D. 1 kg"], answer: 2, explanation: "2,5 - 1,75 = 0,75 kg" },
+  { q: "30. Tabung r=10 cm, t=14 cm. Volumenya (π=22/7)...", options: ["A. 440 cm³", "B. 880 cm³", "C. 4.400 cm³", "D. 8.800 cm³"], answer: 2, explanation: "22/7 × 100 × 14 = 4.400 cm³" }
 ];
 
 let current = 0, selected = null, score = 0, userAnswers = [];
+let timerInterval = null, phase = 'reading', timeLeft = READ_TIME;
+let bgm = null;
 const root = document.getElementById('root');
 
+// ── AUDIO ──────────────────────────────────────────────
+function startBGM() {
+  stopBGM();
+  bgm = new Audio(MUSIC_URL);
+  bgm.loop = true;
+  bgm.volume = 0.5;
+  bgm.play().catch(() => {});
+}
+
+function stopBGM() {
+  if (bgm) { bgm.pause(); bgm.currentTime = 0; bgm = null; }
+}
+
+function playTimeoutSound() {
+  stopBGM();
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [880, 660, 440, 330].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq; osc.type = 'square';
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.15);
+      osc.start(ctx.currentTime + i * 0.18);
+      osc.stop(ctx.currentTime + i * 0.18 + 0.15);
+    });
+  } catch(e) {}
+}
+
+function playCorrectSound() {
+  stopBGM();
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [523, 659, 784].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq; osc.type = 'sine';
+      gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.1);
+      osc.start(ctx.currentTime + i * 0.12);
+      osc.stop(ctx.currentTime + i * 0.12 + 0.1);
+    });
+  } catch(e) {}
+}
+
+function playWrongSound() {
+  stopBGM();
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 220; osc.type = 'sawtooth';
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+function playReadingBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 660; osc.type = 'sine';
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.08);
+  } catch(e) {}
+}
+
+// ── TIMER ──────────────────────────────────────────────
+function stopTimer() { clearInterval(timerInterval); }
+
+function startReadingPhase() {
+  phase = 'reading'; timeLeft = READ_TIME;
+  setOptions(true); updateTimerUI();
+  timerInterval = setInterval(() => {
+    timeLeft--; playReadingBeep(); updateTimerUI();
+    if (timeLeft <= 0) { clearInterval(timerInterval); startAnswerPhase(); }
+  }, 1000);
+}
+
+function startAnswerPhase() {
+  phase = 'running'; timeLeft = ANSWER_TIME;
+  setOptions(false); updateTimerUI();
+  startBGM();
+  timerInterval = setInterval(() => {
+    timeLeft--; updateTimerUI();
+    if (timeLeft <= 0) { clearInterval(timerInterval); onTimeout(); }
+  }, 1000);
+}
+
+function updateTimerUI() {
+  const el = document.getElementById('timer-box');
+  const ph = document.getElementById('phase-label');
+  if (!el) return;
+  if (phase === 'reading') {
+    el.textContent = '👁 ' + timeLeft + 's';
+    el.className = 'timer-box reading';
+    if (ph) { ph.textContent = 'Baca soal dulu!'; ph.className = 'phase-label reading'; }
+  } else {
+    el.textContent = '⏱ ' + timeLeft + 's';
+    el.className = 'timer-box running';
+    if (timeLeft <= 10) el.classList.add('danger');
+    else if (timeLeft <= 15) el.classList.add('warning');
+    if (ph) { ph.textContent = 'Jawab sekarang!'; ph.className = 'phase-label running'; }
+  }
+}
+
+function setOptions(locked) {
+  for (let i = 0; i < 4; i++) {
+    const btn = document.getElementById('opt-' + i);
+    if (!btn) continue;
+    if (locked) { btn.classList.add('locked'); btn.disabled = true; }
+    else { btn.classList.remove('locked'); btn.disabled = false; }
+  }
+}
+
+function onTimeout() {
+  playTimeoutSound();
+  const q = questions[current];
+  for (let i = 0; i < q.options.length; i++) {
+    const btn = document.getElementById('opt-' + i);
+    if (btn) { btn.disabled = true; if (i === q.answer) btn.classList.add('reveal-correct'); }
+  }
+  userAnswers.push({ q: q.q, chosen: '(Waktu habis)', correct: q.options[q.answer], isCorrect: false });
+  document.getElementById('feedback').innerHTML = `
+    <div class="feedback-box timeout">
+      <i class="ti ti-clock-x"></i>
+      <div><strong>Waktu habis!</strong> Jawaban yang benar: ${q.options[q.answer]}</div>
+    </div>`;
+  const isLast = current === questions.length - 1;
+  document.getElementById('nav').innerHTML = `
+    <button class="next-btn" onclick="next()">
+      ${isLast ? 'Lihat Hasil' : 'Soal Berikutnya'} <i class="ti ti-arrow-right"></i>
+    </button>`;
+}
+
+// ── SCREENS ────────────────────────────────────────────
 function renderIntro() {
+  stopTimer(); stopBGM();
   root.innerHTML = `
     <div class="intro-wrap">
       <div class="intro-icon">📐</div>
       <div class="intro-title">Soal Matematika</div>
-      <div class="intro-sub">Kerjakan 10 soal matematika pilihan ganda.<br>Pilih jawaban yang paling tepat!</div>
+      <div class="intro-sub">
+        Kelas 6 — 30 soal pilihan ganda<br>
+        👁 <strong>5 detik</strong> untuk baca soal<br>
+        ⏱ <strong>30 detik</strong> untuk menjawab (+ musik Jeopardy!)<br>
+        Waktu habis = soal otomatis lanjut
+      </div>
       <button class="start-btn" onclick="startQuiz()">
         <i class="ti ti-pencil"></i> Kerjakan Soal
       </button>
     </div>`;
 }
 
-function startQuiz() { current = 0; selected = null; score = 0; userAnswers = []; render(); }
+function startQuiz() {
+  current = 0; selected = null; score = 0; userAnswers = [];
+  render();
+}
 
 function render() {
-  if (current >= questions.length) { renderResult(); return; }
+  if (current >= questions.length) { stopTimer(); stopBGM(); renderResult(); return; }
+  stopTimer(); stopBGM(); selected = null;
   const q = questions[current];
   const pct = (current / questions.length) * 100;
   root.innerHTML = `
+    <div class="timer-row">
+      <div class="question-counter">Soal ${current + 1} dari ${questions.length}</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="phase-label reading" id="phase-label">Baca soal dulu!</span>
+        <span class="timer-box reading" id="timer-box">👁 ${READ_TIME}s</span>
+      </div>
+    </div>
     <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
-    <div class="question-counter">Soal ${current + 1} dari ${questions.length}</div>
     <div class="question-text">${q.q}</div>
     <div class="options-grid" id="opts">
-      ${q.options.map((opt, i) => `<button class="option-btn" id="opt-${i}" onclick="choose(${i})">${opt}</button>`).join('')}
+      ${q.options.map((opt, i) => `<button class="option-btn locked" id="opt-${i}" onclick="choose(${i})" disabled>${opt}</button>`).join('')}
     </div>
     <div id="feedback"></div>
     <div class="nav-row" id="nav"></div>`;
+  startReadingPhase();
 }
 
 function choose(idx) {
-  if (selected !== null) return;
+  if (selected !== null || phase === 'reading') return;
+  stopTimer(); stopBGM();
   selected = idx;
   const q = questions[current];
   const isCorrect = idx === q.answer;
-  if (isCorrect) score++;
+  if (isCorrect) { score++; playCorrectSound(); } else { playWrongSound(); }
   userAnswers.push({ q: q.q, chosen: q.options[idx], correct: q.options[q.answer], isCorrect });
   for (let i = 0; i < q.options.length; i++) {
     const btn = document.getElementById('opt-' + i);
@@ -132,7 +321,7 @@ function choose(idx) {
     </button>`;
 }
 
-function next() { current++; selected = null; render(); }
+function next() { current++; render(); }
 
 function renderResult() {
   const pct = Math.round((score / questions.length) * 100);
@@ -150,7 +339,10 @@ function renderResult() {
           <i class="ans-icon ti ${a.isCorrect ? 'ti-circle-check' : 'ti-circle-x'}" style="color:${a.isCorrect ? '#16a34a' : '#dc2626'}"></i>
           <div>
             <div class="ans-q">${a.q}</div>
-            <div>${a.isCorrect ? `<span style="color:#16a34a">${a.correct}</span>` : `<span style="color:#dc2626;text-decoration:line-through">${a.chosen}</span> → <span style="color:#16a34a">${a.correct}</span>`}</div>
+            <div>${a.isCorrect
+              ? `<span style="color:#16a34a">${a.correct}</span>`
+              : `<span style="color:#dc2626;text-decoration:line-through">${a.chosen}</span> → <span style="color:#16a34a">${a.correct}</span>`}
+            </div>
           </div>
         </div>`).join('')}
       </div>
