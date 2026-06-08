@@ -12,11 +12,14 @@
   .intro-wrap { text-align: center; padding: 2rem 0; }
   .intro-icon { font-size: 56px; margin-bottom: 1rem; }
   .intro-title { font-size: 28px; font-weight: 700; color: #15803d; margin-bottom: 8px; }
-  .intro-sub { font-size: 15px; color: #666; margin-bottom: 2rem; line-height: 1.8; }
-  .start-btn { background: #16a34a; color: #fff; border: none; border-radius: 10px; padding: 14px 36px; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background 0.15s; }
+  .intro-sub { font-size: 15px; color: #666; margin-bottom: 1.5rem; line-height: 1.8; }
+  .sound-btn { background: #f0fdf4; color: #15803d; border: 2px solid #16a34a; border-radius: 10px; padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 1rem; transition: all 0.15s; }
+  .sound-btn:hover { background: #dcfce7; }
+  .sound-btn.active { background: #16a34a; color: #fff; }
+  .start-btn { background: #16a34a; color: #fff; border: none; border-radius: 10px; padding: 14px 36px; font-size: 16px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background 0.15s; margin-top: 0.5rem; }
   .start-btn:hover { background: #15803d; }
   .timer-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .timer-box { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 700; padding: 6px 14px; border-radius: 99px; transition: background 0.3s, color 0.3s; }
+  .timer-box { font-size: 15px; font-weight: 700; padding: 6px 14px; border-radius: 99px; transition: background 0.3s, color 0.3s; }
   .timer-box.reading { background: #fef9c3; color: #a16207; }
   .timer-box.running { background: #dcfce7; color: #15803d; }
   .timer-box.warning { background: #fed7aa; color: #c2410c; }
@@ -43,7 +46,7 @@
   .feedback-box.timeout { background: #fef9c3; color: #a16207; }
   .feedback-box i { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
   .nav-row { display: flex; justify-content: flex-end; }
-  .next-btn { background: #16a34a; color: #fff; border: none; border-radius: 8px; padding: 10px 22px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s; }
+  .next-btn { background: #16a34a; color: #fff; border: none; border-radius: 8px; padding: 10px 22px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
   .next-btn:hover { background: #15803d; }
   .result-wrap { text-align: center; padding: 1rem 0; }
   .score-circle { width: 110px; height: 110px; border-radius: 50%; background: #dcfce7; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 3px solid #16a34a; }
@@ -56,7 +59,7 @@
   .ans-item:last-child { border-bottom: none; }
   .ans-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
   .ans-q { color: #888; margin-bottom: 2px; font-size: 13px; }
-  .restart-btn { background: #16a34a; color: #fff; border: none; border-radius: 8px; padding: 11px 26px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.15s; }
+  .restart-btn { background: #16a34a; color: #fff; border: none; border-radius: 8px; padding: 11px 26px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
   .restart-btn:hover { background: #15803d; }
   @media (max-width: 480px) { .options-grid { grid-template-columns: 1fr; } .card { padding: 1.25rem; } }
 </style>
@@ -65,8 +68,7 @@
 <div class="card"><div id="root"></div></div>
 <script>
 const MUSIC_URL = 'https://arjunaazraf-cloud.github.io/Funny-carrot/musik.mp3';
-const READ_TIME = 5;
-const ANSWER_TIME = 30;
+const READ_TIME = 5, ANSWER_TIME = 30;
 
 const questions = [
   { q: "1. Hasil dari 2.456 + 3.789 adalah...", options: ["A. 6.145", "B. 6.245", "C. 6.345", "D. 6.445"], answer: 1, explanation: "2.456 + 3.789 = 6.245" },
@@ -103,86 +105,54 @@ const questions = [
 
 let current = 0, selected = null, score = 0, userAnswers = [];
 let timerInterval = null, phase = 'reading', timeLeft = READ_TIME;
-let bgm = null;
+let bgm = null, audioCtx = null;
 const root = document.getElementById('root');
 
-// ── AUDIO ──────────────────────────────────────────────
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function unlockAudio() {
+  try {
+    const ctx = getCtx();
+    const buf = ctx.createBuffer(1,1,22050);
+    const src = ctx.createBufferSource();
+    src.buffer = buf; src.connect(ctx.destination); src.start(0);
+  } catch(e) {}
+  const a = new Audio(MUSIC_URL);
+  a.volume = 0;
+  a.play().then(() => { a.pause(); }).catch(() => {});
+  document.getElementById('sound-btn').textContent = '🔊 Suara Aktif!';
+  document.getElementById('sound-btn').classList.add('active');
+}
 function startBGM() {
   stopBGM();
   bgm = new Audio(MUSIC_URL);
-  bgm.loop = true;
-  bgm.volume = 0.5;
-  bgm.play().catch(() => {});
+  bgm.loop = true; bgm.volume = 0.5;
+  const p = bgm.play();
+  if (p) p.catch(() => {});
 }
-
 function stopBGM() {
   if (bgm) { bgm.pause(); bgm.currentTime = 0; bgm = null; }
 }
-
-function playTimeoutSound() {
-  stopBGM();
+function playBeep(freq, type, vol, dur) {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    [880, 660, 440, 330].forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value = freq; osc.type = 'square';
-      gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.18);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.15);
-      osc.start(ctx.currentTime + i * 0.18);
-      osc.stop(ctx.currentTime + i * 0.18 + 0.15);
-    });
+    const ctx = getCtx();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = freq; o.type = type;
+    g.gain.setValueAtTime(vol, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    o.start(ctx.currentTime); o.stop(ctx.currentTime + dur);
   } catch(e) {}
 }
+function playTimeoutSound() { stopBGM(); [880,660,440,330].forEach((f,i) => setTimeout(() => playBeep(f,'square',0.3,0.15), i*180)); }
+function playCorrectSound() { stopBGM(); [523,659,784].forEach((f,i) => setTimeout(() => playBeep(f,'sine',0.2,0.1), i*120)); }
+function playWrongSound() { stopBGM(); playBeep(220,'sawtooth',0.2,0.4); }
+function playReadingBeep() { playBeep(660,'sine',0.08,0.08); }
 
-function playCorrectSound() {
-  stopBGM();
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    [523, 659, 784].forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value = freq; osc.type = 'sine';
-      gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.12);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.1);
-      osc.start(ctx.currentTime + i * 0.12);
-      osc.stop(ctx.currentTime + i * 0.12 + 0.1);
-    });
-  } catch(e) {}
-}
-
-function playWrongSound() {
-  stopBGM();
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.frequency.value = 220; osc.type = 'sawtooth';
-    gain.gain.setValueAtTime(0.2, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4);
-  } catch(e) {}
-}
-
-function playReadingBeep() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.frequency.value = 660; osc.type = 'sine';
-    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.08);
-  } catch(e) {}
-}
-
-// ── TIMER ──────────────────────────────────────────────
 function stopTimer() { clearInterval(timerInterval); }
-
 function startReadingPhase() {
   phase = 'reading'; timeLeft = READ_TIME;
   setOptions(true); updateTimerUI();
@@ -191,7 +161,6 @@ function startReadingPhase() {
     if (timeLeft <= 0) { clearInterval(timerInterval); startAnswerPhase(); }
   }, 1000);
 }
-
 function startAnswerPhase() {
   phase = 'running'; timeLeft = ANSWER_TIME;
   setOptions(false); updateTimerUI();
@@ -201,54 +170,39 @@ function startAnswerPhase() {
     if (timeLeft <= 0) { clearInterval(timerInterval); onTimeout(); }
   }, 1000);
 }
-
 function updateTimerUI() {
-  const el = document.getElementById('timer-box');
-  const ph = document.getElementById('phase-label');
+  const el = document.getElementById('timer-box'), ph = document.getElementById('phase-label');
   if (!el) return;
   if (phase === 'reading') {
-    el.textContent = '👁 ' + timeLeft + 's';
-    el.className = 'timer-box reading';
+    el.textContent = '👁 ' + timeLeft + 's'; el.className = 'timer-box reading';
     if (ph) { ph.textContent = 'Baca soal dulu!'; ph.className = 'phase-label reading'; }
   } else {
-    el.textContent = '⏱ ' + timeLeft + 's';
-    el.className = 'timer-box running';
+    el.textContent = '⏱ ' + timeLeft + 's'; el.className = 'timer-box running';
     if (timeLeft <= 10) el.classList.add('danger');
     else if (timeLeft <= 15) el.classList.add('warning');
     if (ph) { ph.textContent = 'Jawab sekarang!'; ph.className = 'phase-label running'; }
   }
 }
-
 function setOptions(locked) {
   for (let i = 0; i < 4; i++) {
-    const btn = document.getElementById('opt-' + i);
+    const btn = document.getElementById('opt-'+i);
     if (!btn) continue;
     if (locked) { btn.classList.add('locked'); btn.disabled = true; }
     else { btn.classList.remove('locked'); btn.disabled = false; }
   }
 }
-
 function onTimeout() {
   playTimeoutSound();
   const q = questions[current];
   for (let i = 0; i < q.options.length; i++) {
-    const btn = document.getElementById('opt-' + i);
+    const btn = document.getElementById('opt-'+i);
     if (btn) { btn.disabled = true; if (i === q.answer) btn.classList.add('reveal-correct'); }
   }
   userAnswers.push({ q: q.q, chosen: '(Waktu habis)', correct: q.options[q.answer], isCorrect: false });
-  document.getElementById('feedback').innerHTML = `
-    <div class="feedback-box timeout">
-      <i class="ti ti-clock-x"></i>
-      <div><strong>Waktu habis!</strong> Jawaban yang benar: ${q.options[q.answer]}</div>
-    </div>`;
+  document.getElementById('feedback').innerHTML = `<div class="feedback-box timeout"><i class="ti ti-clock-x"></i><div><strong>Waktu habis!</strong> Jawaban yang benar: ${q.options[q.answer]}</div></div>`;
   const isLast = current === questions.length - 1;
-  document.getElementById('nav').innerHTML = `
-    <button class="next-btn" onclick="next()">
-      ${isLast ? 'Lihat Hasil' : 'Soal Berikutnya'} <i class="ti ti-arrow-right"></i>
-    </button>`;
+  document.getElementById('nav').innerHTML = `<button class="next-btn" onclick="next()">${isLast?'Lihat Hasil':'Soal Berikutnya'} <i class="ti ti-arrow-right"></i></button>`;
 }
-
-// ── SCREENS ────────────────────────────────────────────
 function renderIntro() {
   stopTimer(); stopBGM();
   root.innerHTML = `
@@ -258,28 +212,23 @@ function renderIntro() {
       <div class="intro-sub">
         Kelas 6 — 30 soal pilihan ganda<br>
         👁 <strong>5 detik</strong> untuk baca soal<br>
-        ⏱ <strong>30 detik</strong> untuk menjawab (+ musik Jeopardy!)<br>
+        ⏱ <strong>30 detik</strong> untuk menjawab (+ musik!)<br>
         Waktu habis = soal otomatis lanjut
       </div>
-      <button class="start-btn" onclick="startQuiz()">
-        <i class="ti ti-pencil"></i> Kerjakan Soal
-      </button>
+      <div style="margin-bottom:1rem;">
+        <button class="sound-btn" id="sound-btn" onclick="unlockAudio()">🔇 Aktifkan Suara dulu!</button>
+      </div>
+      <button class="start-btn" onclick="startQuiz()"><i class="ti ti-pencil"></i> Kerjakan Soal</button>
     </div>`;
 }
-
-function startQuiz() {
-  current = 0; selected = null; score = 0; userAnswers = [];
-  render();
-}
-
+function startQuiz() { current = 0; selected = null; score = 0; userAnswers = []; render(); }
 function render() {
   if (current >= questions.length) { stopTimer(); stopBGM(); renderResult(); return; }
   stopTimer(); stopBGM(); selected = null;
-  const q = questions[current];
-  const pct = (current / questions.length) * 100;
+  const q = questions[current], pct = (current/questions.length)*100;
   root.innerHTML = `
     <div class="timer-row">
-      <div class="question-counter">Soal ${current + 1} dari ${questions.length}</div>
+      <div class="question-counter">Soal ${current+1} dari ${questions.length}</div>
       <div style="display:flex;align-items:center;gap:8px;">
         <span class="phase-label reading" id="phase-label">Baca soal dulu!</span>
         <span class="timer-box reading" id="timer-box">👁 ${READ_TIME}s</span>
@@ -287,69 +236,47 @@ function render() {
     </div>
     <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
     <div class="question-text">${q.q}</div>
-    <div class="options-grid" id="opts">
-      ${q.options.map((opt, i) => `<button class="option-btn locked" id="opt-${i}" onclick="choose(${i})" disabled>${opt}</button>`).join('')}
+    <div class="options-grid">
+      ${q.options.map((opt,i)=>`<button class="option-btn locked" id="opt-${i}" onclick="choose(${i})" disabled>${opt}</button>`).join('')}
     </div>
     <div id="feedback"></div>
     <div class="nav-row" id="nav"></div>`;
   startReadingPhase();
 }
-
 function choose(idx) {
   if (selected !== null || phase === 'reading') return;
-  stopTimer(); stopBGM();
-  selected = idx;
-  const q = questions[current];
-  const isCorrect = idx === q.answer;
+  stopTimer(); stopBGM(); selected = idx;
+  const q = questions[current], isCorrect = idx === q.answer;
   if (isCorrect) { score++; playCorrectSound(); } else { playWrongSound(); }
   userAnswers.push({ q: q.q, chosen: q.options[idx], correct: q.options[q.answer], isCorrect });
   for (let i = 0; i < q.options.length; i++) {
-    const btn = document.getElementById('opt-' + i);
-    btn.disabled = true;
-    if (i === q.answer) btn.classList.add(idx === i ? 'correct' : 'reveal-correct');
-    else if (i === idx && !isCorrect) btn.classList.add('wrong');
+    const btn = document.getElementById('opt-'+i); btn.disabled = true;
+    if (i === q.answer) btn.classList.add(idx===i?'correct':'reveal-correct');
+    else if (i===idx && !isCorrect) btn.classList.add('wrong');
   }
-  document.getElementById('feedback').innerHTML = `
-    <div class="feedback-box ${isCorrect ? 'correct' : 'wrong'}">
-      <i class="ti ${isCorrect ? 'ti-circle-check' : 'ti-circle-x'}"></i>
-      <div><strong>${isCorrect ? 'Benar!' : 'Kurang tepat.'}</strong> ${q.explanation}</div>
-    </div>`;
+  document.getElementById('feedback').innerHTML = `<div class="feedback-box ${isCorrect?'correct':'wrong'}"><i class="ti ${isCorrect?'ti-circle-check':'ti-circle-x'}"></i><div><strong>${isCorrect?'Benar!':'Kurang tepat.'}</strong> ${q.explanation}</div></div>`;
   const isLast = current === questions.length - 1;
-  document.getElementById('nav').innerHTML = `
-    <button class="next-btn" onclick="next()">
-      ${isLast ? 'Lihat Hasil' : 'Soal Berikutnya'} <i class="ti ti-arrow-right"></i>
-    </button>`;
+  document.getElementById('nav').innerHTML = `<button class="next-btn" onclick="next()">${isLast?'Lihat Hasil':'Soal Berikutnya'} <i class="ti ti-arrow-right"></i></button>`;
 }
-
 function next() { current++; render(); }
-
 function renderResult() {
-  const pct = Math.round((score / questions.length) * 100);
-  const verdict = pct === 100 ? "Sempurna! 🎉" : pct >= 80 ? "Bagus Sekali! 👏" : pct >= 60 ? "Cukup Bagus! 👍" : "Tetap Semangat! 💪";
+  const pct = Math.round((score/questions.length)*100);
+  const verdict = pct===100?"Sempurna! 🎉":pct>=80?"Bagus Sekali! 👏":pct>=60?"Cukup Bagus! 👍":"Tetap Semangat! 💪";
   root.innerHTML = `
     <div class="result-wrap">
-      <div class="score-circle">
-        <span class="score-num">${score}/${questions.length}</span>
-        <span class="score-label">${pct}%</span>
-      </div>
+      <div class="score-circle"><span class="score-num">${score}/${questions.length}</span><span class="score-label">${pct}%</span></div>
       <div class="result-title">${verdict}</div>
       <div class="result-sub">Kamu menjawab ${score} dari ${questions.length} soal dengan benar.</div>
       <div class="result-answers">
-        ${userAnswers.map(a => `<div class="ans-item">
-          <i class="ans-icon ti ${a.isCorrect ? 'ti-circle-check' : 'ti-circle-x'}" style="color:${a.isCorrect ? '#16a34a' : '#dc2626'}"></i>
-          <div>
-            <div class="ans-q">${a.q}</div>
-            <div>${a.isCorrect
-              ? `<span style="color:#16a34a">${a.correct}</span>`
-              : `<span style="color:#dc2626;text-decoration:line-through">${a.chosen}</span> → <span style="color:#16a34a">${a.correct}</span>`}
-            </div>
-          </div>
-        </div>`).join('')}
+        ${userAnswers.map(a=>`<div class="ans-item">
+          <i class="ans-icon ti ${a.isCorrect?'ti-circle-check':'ti-circle-x'}" style="color:${a.isCorrect?'#16a34a':'#dc2626'}"></i>
+          <div><div class="ans-q">${a.q}</div>
+          <div>${a.isCorrect?`<span style="color:#16a34a">${a.correct}</span>`:`<span style="color:#dc2626;text-decoration:line-through">${a.chosen}</span> → <span style="color:#16a34a">${a.correct}</span>`}</div>
+          </div></div>`).join('')}
       </div>
       <button class="restart-btn" onclick="renderIntro()"><i class="ti ti-refresh"></i> Ulangi Kuis</button>
     </div>`;
 }
-
 renderIntro();
 </script>
 </body>
